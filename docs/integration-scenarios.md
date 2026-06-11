@@ -37,7 +37,7 @@ Covered by `e2e/booking.spec.ts`.
 Run the full e2e suite:
 
 ```sh
-npm run test:e2e
+make e2e
 ```
 
 Run Playwright in interactive mode:
@@ -46,10 +46,10 @@ Run Playwright in interactive mode:
 npm run test:e2e:ui
 ```
 
-The Playwright config starts the backend and frontend automatically. PostgreSQL
-must be running and migrated before the tests:
+The `e2e` make target starts PostgreSQL, waits for the healthcheck, applies the
+database migration, and then runs Playwright. The Playwright config starts the
+backend and frontend automatically.
 
 ```sh
-docker compose up -d postgres
-npm run backend:db:migrate
+make e2e
 ```

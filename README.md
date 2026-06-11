@@ -72,9 +72,7 @@ The Playwright e2e suite covers the main booking flow against a real frontend
 and backend:
 
 ```sh
-docker compose up -d postgres
-npm run backend:db:migrate
-npm run test:e2e
+make e2e
 ```
 
 See `docs/integration-scenarios.md` for the scenario inventory.

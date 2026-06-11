@@ -1,4 +1,4 @@
-.PHONY: compile check e2e
+.PHONY: compile check postgres-up db-migrate e2e
 
 compile:
 	npm run contracts:build
@@ -11,5 +11,11 @@ check:
 	npm run frontend:build
 	npm run backend:build
 
-e2e:
+postgres-up:
+	docker compose up -d --wait postgres
+
+db-migrate: postgres-up
+	npm run backend:db:migrate
+
+e2e: db-migrate
 	npm run test:e2e
