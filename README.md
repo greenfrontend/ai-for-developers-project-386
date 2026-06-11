@@ -1,25 +1,53 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/greenfrontend/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/greenfrontend/ai-for-developers-project-386/actions)
 
-# Event Types API
+# Booking UI
 
-This project uses TypeSpec as the source of truth for the API contract. TypeSpec
-keeps the API description compact and generates the OpenAPI specification from
-that source.
+This project is an npm monorepo with a TypeSpec API contract and a Vite
+frontend.
 
-## Generate OpenAPI
+## Workspaces
 
-Install dependencies:
+- `contracts` contains the TypeSpec contract and generated OpenAPI document.
+- `frontend` contains the Vite + React + TypeScript + Mantine UI.
+
+## Install
+
+Install dependencies from the repository root:
 
 ```sh
 npm install
 ```
 
+## Generate contract artifacts
+
 Generate the OpenAPI specification:
 
 ```sh
-npm run generate:openapi
+npm run contracts:build
 ```
 
-The generated file is written to
-`tsp-output/@typespec/openapi3/openapi.yaml`.
+The generated file is written to `contracts/generated/openapi.yaml`.
+
+Generate the frontend SDK from the contract:
+
+```sh
+npm run frontend:generate-api
+```
+
+## Development
+
+Run the Prism mock API:
+
+```sh
+npm run contracts:mock
+```
+
+Run the frontend:
+
+```sh
+npm run frontend:dev
+```
+
+The frontend uses `VITE_API_BASE_URL` for API calls and defaults to
+`http://localhost:4010`.

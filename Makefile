@@ -1,2 +1,2 @@
 compile:
-	npm run generate:openapi
+	npm run contracts:build

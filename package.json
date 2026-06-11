@@ -3,12 +3,21 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
+  "workspaces": [
+    "contracts",
+    "frontend"
+  ],
   "scripts": {
-    "generate:openapi": "tsp compile ."
+    "contracts:build": "npm -w contracts run build",
+    "contracts:mock": "npm -w contracts run mock",
+    "frontend:generate-api": "npm -w frontend run generate:api",
+    "frontend:dev": "npm -w frontend run dev",
+    "frontend:build": "npm -w frontend run build",
+    "build": "npm run contracts:build && npm run frontend:generate-api && npm run frontend:build"
   },
-  "devDependencies": {
-    "@typespec/compiler": "1.13.0",
-    "@typespec/http": "1.13.0",
-    "@typespec/openapi3": "1.13.0"
+  "overrides": {
+    "@stoplight/prism-core": "5.8.0",
+    "@stoplight/prism-http": "5.12.0",
+    "@stoplight/prism-http-server": "5.12.0"
   }
 }
