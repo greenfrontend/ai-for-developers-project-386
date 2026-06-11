@@ -11,6 +11,7 @@ model EventType {
   title: string;
   description: string;
   @doc("Duration of this event type in minutes.")
+  @minValue(1)
   durationMinutes: int32;
 }
 
@@ -20,6 +21,7 @@ model CreateEventTypeRequest {
   title: string;
   description: string;
   @doc("Duration of this event type in minutes.")
+  @minValue(1)
   durationMinutes: int32;
 }
 
@@ -33,6 +35,7 @@ model Slot {
 model Booking {
   id: string;
   eventTypeId: string;
+  eventTypeTitle: string;
   startsAt: utcDateTime;
   @doc("Calculated as startsAt plus the selected event type duration.")
   endsAt: utcDateTime;
@@ -95,7 +98,7 @@ interface EventTypeSlots {
 
 @route("/bookings")
 interface Bookings {
-  @doc("Create a guest booking for a free slot in the default 14-day booking window.")
+  @doc("Create a guest booking for a free slot in the default 14-day booking window. Returns 400 when the selected start time is outside the 14-day window or is not one of the offered slots. Returns 409 when any existing booking already starts at the selected time, even if it belongs to another event type.")
   @post create(@body request: CreateBookingRequest): CreatedBooking | BadRequestError | NotFoundError | ConflictError;
 }
 

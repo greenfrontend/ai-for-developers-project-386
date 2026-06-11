@@ -45,7 +45,7 @@ paths:
   /bookings:
     post:
       operationId: Bookings_create
-      description: Create a guest booking for a free slot in the default 14-day booking window.
+      description: Create a guest booking for a free slot in the default 14-day booking window. Returns 400 when the selected start time is outside the 14-day window or is not one of the offered slots. Returns 409 when any existing booking already starts at the selected time, even if it belongs to another event type.
       parameters: []
       responses:
         '201':
@@ -124,6 +124,7 @@ components:
       required:
         - id
         - eventTypeId
+        - eventTypeTitle
         - startsAt
         - endsAt
         - guestName
@@ -132,6 +133,8 @@ components:
         id:
           type: string
         eventTypeId:
+          type: string
+        eventTypeTitle:
           type: string
         startsAt:
           type: string
@@ -182,6 +185,7 @@ components:
         durationMinutes:
           type: integer
           format: int32
+          minimum: 1
           description: Duration of this event type in minutes.
       description: Input used by the calendar owner to create an event type.
     ErrorResponse:
@@ -211,6 +215,7 @@ components:
         durationMinutes:
           type: integer
           format: int32
+          minimum: 1
           description: Duration of this event type in minutes.
       description: A type of event that guests can book.
     Slot:
