@@ -1,0 +1,14 @@
+{
+  "name": "ai-for-developers-project-386",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "generate:openapi": "tsp compile ."
+  },
+  "devDependencies": {
+    "@typespec/compiler": "1.13.0",
+    "@typespec/http": "1.13.0",
+    "@typespec/openapi3": "1.13.0"
+  }
+}
