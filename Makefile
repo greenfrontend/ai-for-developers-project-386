@@ -1,4 +1,4 @@
-.PHONY: compile check
+.PHONY: compile check e2e
 
 compile:
 	npm run contracts:build
@@ -10,3 +10,6 @@ check:
 	npm run backend:generate-api
 	npm run frontend:build
 	npm run backend:build
+
+e2e:
+	npm run test:e2e

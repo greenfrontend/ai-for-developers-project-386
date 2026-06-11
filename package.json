@@ -20,11 +20,17 @@
     "frontend:generate-api": "npm -w frontend run generate:api",
     "frontend:dev": "npm -w frontend run dev",
     "frontend:build": "npm -w frontend run build",
-    "build": "npm run contracts:build && npm run frontend:generate-api && npm run frontend:build"
+    "build": "npm run contracts:build && npm run frontend:generate-api && npm run frontend:build",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "playwright:install": "playwright install"
   },
   "overrides": {
     "@stoplight/prism-core": "5.8.0",
     "@stoplight/prism-http": "5.12.0",
     "@stoplight/prism-http-server": "5.12.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
   }
 }

@@ -65,3 +65,22 @@ npm run frontend:dev
 
 The frontend uses `VITE_API_BASE_URL` for API calls and defaults to
 `http://localhost:4010`.
+
+## Integration tests
+
+The Playwright e2e suite covers the main booking flow against a real frontend
+and backend:
+
+```sh
+docker compose up -d postgres
+npm run backend:db:migrate
+npm run test:e2e
+```
+
+See `docs/integration-scenarios.md` for the scenario inventory.
+
+## Releases
+
+Commits must follow Conventional Commits. The `release-please` workflow watches
+the `master` branch and creates or updates a release pull request with the next
+semantic version and changelog.
