@@ -43,7 +43,19 @@ make e2e
 Run Playwright in interactive mode:
 
 ```sh
-npm run test:e2e:ui
+make e2e-ui
+```
+
+Run the test in a visible browser with slowed-down actions:
+
+```sh
+make e2e-headed
+```
+
+Run with Playwright Inspector and step through each action:
+
+```sh
+make e2e-debug
 ```
 
 The `e2e` make target starts PostgreSQL, waits for the healthcheck, applies the

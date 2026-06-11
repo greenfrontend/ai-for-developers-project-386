@@ -1,4 +1,4 @@
-.PHONY: compile check postgres-up db-migrate e2e
+.PHONY: compile check postgres-up db-migrate e2e e2e-headed e2e-ui e2e-debug
 
 compile:
 	npm run contracts:build
@@ -19,3 +19,12 @@ db-migrate: postgres-up
 
 e2e: db-migrate
 	npm run test:e2e
+
+e2e-headed: db-migrate
+	PLAYWRIGHT_SLOW_MO=500 npm run test:e2e -- --headed --project=chromium
+
+e2e-ui: db-migrate
+	npm run test:e2e:ui
+
+e2e-debug: db-migrate
+	PWDEBUG=1 PLAYWRIGHT_SLOW_MO=300 npm run test:e2e -- --headed --project=chromium

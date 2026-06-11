@@ -2,6 +2,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 const apiBaseUrl = process.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:4010';
 const frontendBaseUrl = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:5173';
+const configuredSlowMo = Number(process.env.PLAYWRIGHT_SLOW_MO ?? 0);
+const launchOptions =
+  Number.isFinite(configuredSlowMo) && configuredSlowMo > 0
+    ? { slowMo: configuredSlowMo }
+    : undefined;
 
 export default defineConfig({
   testDir: './e2e',
@@ -12,6 +17,7 @@ export default defineConfig({
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: frontendBaseUrl,
+    ...(launchOptions ? { launchOptions } : {}),
     trace: 'on-first-retry',
   },
   projects: [
