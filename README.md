@@ -9,6 +9,7 @@ frontend.
 ## Workspaces
 
 - `contracts` contains the TypeSpec contract and generated OpenAPI document.
+- `backend` contains the Fastify + Drizzle + PostgreSQL API implementation.
 - `frontend` contains the Vite + React + TypeScript + Mantine UI.
 
 ## Install
@@ -37,7 +38,20 @@ npm run frontend:generate-api
 
 ## Development
 
-Run the Prism mock API:
+Start PostgreSQL and apply the backend schema:
+
+```sh
+docker compose up -d postgres
+npm run backend:db:migrate
+```
+
+Run the backend API:
+
+```sh
+npm run backend:dev
+```
+
+Alternatively, run the Prism mock API instead of the backend:
 
 ```sh
 npm run contracts:mock

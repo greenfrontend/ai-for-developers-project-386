@@ -4,10 +4,17 @@
   "type": "module",
   "private": true,
   "workspaces": [
+    "backend",
     "contracts",
     "frontend"
   ],
   "scripts": {
+    "backend:build": "npm -w backend run build",
+    "backend:check": "npm -w backend run check",
+    "backend:db:migrate": "npm -w backend run db:migrate",
+    "backend:dev": "npm -w backend run dev",
+    "backend:generate-api": "npm -w backend run generate:api",
+    "backend:test": "npm -w backend run test",
     "contracts:build": "npm -w contracts run build",
     "contracts:mock": "npm -w contracts run mock",
     "frontend:generate-api": "npm -w frontend run generate:api",
