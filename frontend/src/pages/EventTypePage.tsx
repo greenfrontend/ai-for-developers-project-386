@@ -254,6 +254,8 @@ export function EventTypePage() {
               </Group>
 
               <MonthView
+                className="booking-month-view"
+                consistentWeeks={false}
                 date={`${month}-01`}
                 events={availabilityEvents}
                 firstDayOfWeek={1}
@@ -267,7 +269,6 @@ export function EventTypePage() {
                   };
                 }}
                 maxEventsPerDay={1}
-                mode="static"
                 onDayClick={(date) => selectDate(date)}
                 onEventClick={(event) => {
                   const dateKey = event.payload?.dateKey;

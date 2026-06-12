@@ -18,3 +18,18 @@ a {
   outline: 2px solid var(--mantine-color-teal-6);
   outline-offset: -2px;
 }
+
+.booking-month-view .mantine-MonthView-monthViewInner,
+.booking-month-view .mantine-MonthView-monthViewDay,
+.booking-month-view .mantine-MonthView-monthViewWeekday {
+  min-width: 0;
+}
+
+.booking-month-view .mantine-MonthView-monthViewDay {
+  height: 64px;
+}
+
+.booking-month-view .mantine-MonthView-monthViewEvents,
+.booking-month-view .mantine-MonthView-monthViewEvents * {
+  pointer-events: none;
+}

@@ -39,6 +39,16 @@ test('guest can book an available slot end to end', async ({ page }) => {
   await expect(page.getByText(description)).toBeVisible();
   await expect(page.getByText(/\d+ slots/).first()).toBeVisible();
 
+  const availableDays = page.getByRole('button', { name: /\d+ available slots$/ });
+  await expect(availableDays.nth(1)).toBeVisible();
+  const targetDayLabel = await availableDays.nth(1).getAttribute('aria-label');
+  expect(targetDayLabel).toBeTruthy();
+  await availableDays.nth(1).click();
+  await expect(page.locator('[data-slot-calendar-day-selected="true"]')).toHaveAttribute(
+    'aria-label',
+    targetDayLabel ?? '',
+  );
+
   const firstSlot = page.locator('[data-slot-starts-at]').first();
   await expect(firstSlot).toBeVisible();
   const startsAt = await firstSlot.getAttribute('data-slot-starts-at');
