@@ -6,6 +6,10 @@
 This project is an npm monorepo with a TypeSpec API contract and a Vite
 frontend.
 
+## Deployment
+
+Published app: https://ai-for-developers-project-386-yzyj.onrender.com
+
 ## Workspaces
 
 - `contracts` contains the TypeSpec contract and generated OpenAPI document.
