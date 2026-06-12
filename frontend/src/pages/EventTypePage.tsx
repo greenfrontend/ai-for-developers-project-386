@@ -3,6 +3,7 @@ import {
   Alert,
   Badge,
   Button,
+  Grid,
   Group,
   Paper,
   SimpleGrid,
@@ -226,139 +227,141 @@ export function EventTypePage() {
 
       {!loading && !error && slots.length > 0 ? (
         <Paper withBorder p="lg" radius="sm">
-          <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl" verticalSpacing="xl">
-            <Stack gap="md">
-              <Group justify="space-between" wrap="nowrap">
-                <ActionIcon
-                  aria-label="Previous month"
-                  disabled={!canGoPrevious}
-                  onClick={() => {
-                    if (canGoPrevious) {
-                      setMonth(addMonths(month, -1));
-                    }
-                  }}
-                  variant="subtle"
-                >
-                  <IconChevronLeft size={18} />
-                </ActionIcon>
-                <Title order={2} size="h3" ta="center">
-                  {formatMonth(month)}
-                </Title>
-                <ActionIcon
-                  aria-label="Next month"
-                  onClick={() => setMonth(addMonths(month, 1))}
-                  variant="subtle"
-                >
-                  <IconChevronRight size={18} />
-                </ActionIcon>
-              </Group>
-
-              <MonthView
-                className="booking-month-view"
-                consistentWeeks={false}
-                date={`${month}-01`}
-                events={availabilityEvents}
-                firstDayOfWeek={1}
-                getDayProps={(date) => {
-                  const count = slotsByDate.get(date)?.length ?? 0;
-
-                  return {
-                    'aria-label': count > 0 ? `${date}, ${count} available slots` : `${date}, no available slots`,
-                    'data-slot-calendar-day-selected': date === selectedDate ? 'true' : undefined,
-                    disabled: count === 0,
-                  };
-                }}
-                maxEventsPerDay={1}
-                onDayClick={(date) => selectDate(date)}
-                onEventClick={(event) => {
-                  const dateKey = event.payload?.dateKey;
-
-                  if (typeof dateKey === 'string') {
-                    selectDate(dateKey);
-                  }
-                }}
-                radius="sm"
-                weekdayFormat="ddd"
-                withHeader={false}
-                withOutsideDays={false}
-              />
-            </Stack>
-
-            <form onSubmit={handleSubmit}>
-              <Stack gap="lg">
-                <Stack gap={4}>
-                  <Group justify="space-between" gap="xs" align="flex-start">
-                    <Title order={2} size="h3">
-                      {selectedDate ? formatDate(selectedDate, timeZone) : 'Select a day'}
-                    </Title>
-                    {selectedDateSlots.length > 0 ? (
-                      <Badge variant="light">{selectedDateSlots.length} slots</Badge>
-                    ) : null}
-                  </Group>
-                  <Text c="dimmed" size="sm">
-                    {timeZone}
-                  </Text>
-                </Stack>
-
-                {selectedDateSlots.length > 0 ? (
-                  <SimpleGrid cols={{ base: 2, sm: 3, md: 2 }} spacing="xs">
-                    {selectedDateSlots.map((slot) => (
-                      <Button
-                        key={slot.startsAt}
-                        data-slot-starts-at={slot.startsAt}
-                        type="button"
-                        variant={selectedSlot === slot.startsAt ? 'filled' : 'light'}
-                        onClick={() => setSelectedSlot(slot.startsAt)}
-                      >
-                        {formatTimeRange(slot.startsAt, slot.endsAt, timeZone)}
-                      </Button>
-                    ))}
-                  </SimpleGrid>
-                ) : (
-                  <Text c="dimmed" size="sm">
-                    Choose a day with available slots.
-                  </Text>
-                )}
-
-                <Group grow align="flex-start">
-                  <TextInput
-                    label="Guest name"
-                    value={form.guestName}
-                    onChange={(event) => {
-                      const { value } = event.currentTarget;
-                      setForm((current) => ({ ...current, guestName: value }));
+          <Grid gap="xl">
+            <Grid.Col span={{ base: 12, lg: 8 }}>
+              <Stack gap="md">
+                <Group justify="space-between" wrap="nowrap">
+                  <ActionIcon
+                    aria-label="Previous month"
+                    disabled={!canGoPrevious}
+                    onClick={() => {
+                      if (canGoPrevious) {
+                        setMonth(addMonths(month, -1));
+                      }
                     }}
-                    required
-                  />
-                  <TextInput
-                    label="Guest email"
-                    type="email"
-                    value={form.guestEmail}
-                    onChange={(event) => {
-                      const { value } = event.currentTarget;
-                      setForm((current) => ({ ...current, guestEmail: value }));
-                    }}
-                    required
-                  />
+                    variant="subtle"
+                  >
+                    <IconChevronLeft size={18} />
+                  </ActionIcon>
+                  <Title order={2} size="h3" ta="center">
+                    {formatMonth(month)}
+                  </Title>
+                  <ActionIcon
+                    aria-label="Next month"
+                    onClick={() => setMonth(addMonths(month, 1))}
+                    variant="subtle"
+                  >
+                    <IconChevronRight size={18} />
+                  </ActionIcon>
                 </Group>
 
-                {submitError ? (
-                  <Alert color="red" variant="light">
-                    {submitError}
-                  </Alert>
-                ) : null}
+                <MonthView
+                  consistentWeeks={false}
+                  date={`${month}-01`}
+                  events={availabilityEvents}
+                  firstDayOfWeek={1}
+                  getDayProps={(date) => {
+                    const count = slotsByDate.get(date)?.length ?? 0;
 
-                <Button
-                  type="submit"
-                  loading={submitting}
-                  disabled={!selectedSlot}
-                  leftSection={<IconSend size={16} />}
-                >
-                  Create booking
-                </Button>
+                    return {
+                      'aria-label': count > 0 ? `${date}, ${count} available slots` : `${date}, no available slots`,
+                      disabled: count === 0,
+                      mod: { 'drag-selected': date === selectedDate },
+                    };
+                  }}
+                  maxEventsPerDay={1}
+                  onDayClick={(date) => selectDate(date)}
+                  onEventClick={(event) => {
+                    const dateKey = event.payload?.dateKey;
+
+                    if (typeof dateKey === 'string') {
+                      selectDate(dateKey);
+                    }
+                  }}
+                  radius="sm"
+                  weekdayFormat="ddd"
+                  withHeader={false}
+                />
               </Stack>
-            </form>
-          </SimpleGrid>
+            </Grid.Col>
+
+            <Grid.Col span={{ base: 12, lg: 4 }}>
+              <form onSubmit={handleSubmit}>
+                <Stack gap="lg">
+                  <Stack gap={4}>
+                    <Group justify="space-between" gap="xs" align="flex-start">
+                      <Title order={2} size="h3">
+                        {selectedDate ? formatDate(selectedDate, timeZone) : 'Select a day'}
+                      </Title>
+                      {selectedDateSlots.length > 0 ? (
+                        <Badge variant="light">{selectedDateSlots.length} slots</Badge>
+                      ) : null}
+                    </Group>
+                    <Text c="dimmed" size="sm">
+                      {timeZone}
+                    </Text>
+                  </Stack>
+
+                  {selectedDateSlots.length > 0 ? (
+                    <SimpleGrid cols={{ base: 1, sm: 3, md: 2 }} spacing="xs">
+                      {selectedDateSlots.map((slot) => (
+                        <Button
+                          key={slot.startsAt}
+                          data-slot-starts-at={slot.startsAt}
+                          type="button"
+                          variant={selectedSlot === slot.startsAt ? 'filled' : 'light'}
+                          onClick={() => setSelectedSlot(slot.startsAt)}
+                        >
+                          {formatTimeRange(slot.startsAt, slot.endsAt, timeZone)}
+                        </Button>
+                      ))}
+                    </SimpleGrid>
+                  ) : (
+                    <Text c="dimmed" size="sm">
+                      Choose a day with available slots.
+                    </Text>
+                  )}
+
+                  <Group grow align="flex-start">
+                    <TextInput
+                      label="Guest name"
+                      value={form.guestName}
+                      onChange={(event) => {
+                        const { value } = event.currentTarget;
+                        setForm((current) => ({ ...current, guestName: value }));
+                      }}
+                      required
+                    />
+                    <TextInput
+                      label="Guest email"
+                      type="email"
+                      value={form.guestEmail}
+                      onChange={(event) => {
+                        const { value } = event.currentTarget;
+                        setForm((current) => ({ ...current, guestEmail: value }));
+                      }}
+                      required
+                    />
+                  </Group>
+
+                  {submitError ? (
+                    <Alert color="red" variant="light">
+                      {submitError}
+                    </Alert>
+                  ) : null}
+
+                  <Button
+                    type="submit"
+                    loading={submitting}
+                    disabled={!selectedSlot}
+                    leftSection={<IconSend size={16} />}
+                  >
+                    Create booking
+                  </Button>
+                </Stack>
+              </form>
+            </Grid.Col>
+          </Grid>
         </Paper>
       ) : null}
     </Stack>
