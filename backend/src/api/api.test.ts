@@ -1,3 +1,7 @@
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import type { FastifyInstance } from 'fastify';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -9,6 +13,7 @@ const now = new Date('2026-06-11T08:00:00.000Z');
 async function createTestApp(repository = new InMemoryBookingRepository()) {
   return buildApp({
     enableResponseValidation: true,
+    frontendDistPath: false,
     now: () => now,
     repository,
   });
@@ -267,5 +272,35 @@ describe('Booking API', () => {
       'future-early',
       'future-late',
     ]);
+  });
+
+  it('serves the frontend for browser routes without changing JSON API 404s', async () => {
+    const frontendDistPath = await mkdtemp(join(tmpdir(), 'booking-frontend-'));
+    await mkdir(join(frontendDistPath, 'assets'));
+    await writeFile(join(frontendDistPath, 'index.html'), '<!doctype html><div id="root"></div>');
+    app = await buildApp({
+      frontendDistPath,
+      repository: new InMemoryBookingRepository(),
+    });
+
+    const browserResponse = await app.inject({
+      headers: { accept: 'text/html' },
+      method: 'GET',
+      url: '/admin/bookings',
+    });
+    const apiResponse = await app.inject({
+      headers: { accept: 'application/json' },
+      method: 'GET',
+      url: '/not-an-api-route',
+    });
+
+    expect(browserResponse.statusCode).toBe(200);
+    expect(browserResponse.headers['content-type']).toContain('text/html');
+    expect(browserResponse.body).toContain('<div id="root"></div>');
+    expect(apiResponse.statusCode).toBe(404);
+    expect(apiResponse.json()).toEqual({
+      code: 'NOT_FOUND',
+      message: 'Route not found.',
+    });
   });
 });
