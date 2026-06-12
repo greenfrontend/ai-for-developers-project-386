@@ -8,8 +8,8 @@ export type ClientOptions = {
  * A guest booking. The end time is calculated from the event type duration.
  */
 export type Booking = {
-    id: string;
-    eventTypeId: string;
+    id: Uuid;
+    eventTypeId: Uuid;
     eventTypeTitle: string;
     startsAt: string;
     /**
@@ -27,9 +27,9 @@ export type CreateBookingRequest = {
     /**
      * The event type selected by the guest.
      */
-    eventTypeId: string;
+    eventTypeId: Uuid;
     /**
-     * Must be one of the free slot start times for the selected event type in the default 14-day booking window.
+     * Must be one of the free slot start times for the selected event type.
      */
     startsAt: string;
     guestName: string;
@@ -40,7 +40,6 @@ export type CreateBookingRequest = {
  * Input used by the calendar owner to create an event type.
  */
 export type CreateEventTypeRequest = {
-    id: string;
     title: string;
     description: string;
     /**
@@ -58,7 +57,7 @@ export type ErrorResponse = {
  * A type of event that guests can book.
  */
 export type EventType = {
-    id: string;
+    id: Uuid;
     title: string;
     description: string;
     /**
@@ -68,12 +67,22 @@ export type EventType = {
 };
 
 /**
- * A free booking slot for a selected event type in the default 14-day booking window.
+ * A free booking slot for a selected event type in a calendar month.
  */
 export type Slot = {
     startsAt: string;
     endsAt: string;
 };
+
+/**
+ * Database-generated UUID.
+ */
+export type Uuid = string;
+
+/**
+ * Calendar month in YYYY-MM format.
+ */
+export type YearMonth = string;
 
 export type AdminBookingsListUpcomingData = {
     body?: never;
@@ -97,15 +106,6 @@ export type AdminEventTypesCreateData = {
     query?: never;
     url: '/admin/event-types';
 };
-
-export type AdminEventTypesCreateErrors = {
-    /**
-     * The request conflicts with the current state of the server.
-     */
-    409: ErrorResponse;
-};
-
-export type AdminEventTypesCreateError = AdminEventTypesCreateErrors[keyof AdminEventTypesCreateErrors];
 
 export type AdminEventTypesCreateResponses = {
     /**
@@ -165,16 +165,50 @@ export type EventTypesListResponses = {
 
 export type EventTypesListResponse = EventTypesListResponses[keyof EventTypesListResponses];
 
+export type EventTypesReadData = {
+    body?: never;
+    path: {
+        eventTypeId: Uuid;
+    };
+    query?: never;
+    url: '/event-types/{eventTypeId}';
+};
+
+export type EventTypesReadErrors = {
+    /**
+     * The server cannot find the requested resource.
+     */
+    404: ErrorResponse;
+};
+
+export type EventTypesReadError = EventTypesReadErrors[keyof EventTypesReadErrors];
+
+export type EventTypesReadResponses = {
+    /**
+     * The request has succeeded.
+     */
+    200: EventType;
+};
+
+export type EventTypesReadResponse = EventTypesReadResponses[keyof EventTypesReadResponses];
+
 export type EventTypeSlotsListData = {
     body?: never;
     path: {
-        eventTypeId: string;
+        eventTypeId: Uuid;
     };
-    query?: never;
+    query?: {
+        month?: YearMonth;
+        timeZone?: string;
+    };
     url: '/event-types/{eventTypeId}/slots';
 };
 
 export type EventTypeSlotsListErrors = {
+    /**
+     * The server could not understand the request due to invalid syntax.
+     */
+    400: ErrorResponse;
     /**
      * The server cannot find the requested resource.
      */

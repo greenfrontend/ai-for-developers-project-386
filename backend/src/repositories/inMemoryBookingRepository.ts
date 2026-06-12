@@ -1,4 +1,6 @@
-import type { Booking, EventType } from '../api/generated/types.gen.js';
+import { randomUUID } from 'node:crypto';
+
+import type { Booking, CreateEventTypeRequest, EventType } from '../api/generated/types.gen.js';
 import type { BookingDraft, BookingRepository } from '../domain.js';
 import { normalizeSlotStart } from '../services/slots.js';
 
@@ -24,14 +26,15 @@ export class InMemoryBookingRepository implements BookingRepository {
     return 'created';
   }
 
-  async createEventType(eventType: EventType): Promise<'created' | 'conflict'> {
-    if (this.eventTypes.has(eventType.id)) {
-      return 'conflict';
-    }
+  async createEventType(eventType: CreateEventTypeRequest): Promise<EventType> {
+    const createdEventType = {
+      id: randomUUID(),
+      ...eventType,
+    };
 
-    this.eventTypes.set(eventType.id, eventType);
+    this.eventTypes.set(createdEventType.id, createdEventType);
 
-    return 'created';
+    return createdEventType;
   }
 
   async findEventType(eventTypeId: string): Promise<EventType | undefined> {

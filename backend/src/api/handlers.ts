@@ -9,13 +9,7 @@ export function createRouteHandlers(service: BookingService): RouteHandlers {
     },
 
     async adminEventTypesCreate(request, reply) {
-      const result = await service.createEventType(request.body);
-
-      if (result.status === 'conflict') {
-        return reply.code(409).send(errors.eventTypeAlreadyExists());
-      }
-
-      return reply.code(201).send(result.eventType);
+      return reply.code(201).send(await service.createEventType(request.body));
     },
 
     async bookingsCreate(request, reply) {
@@ -37,14 +31,27 @@ export function createRouteHandlers(service: BookingService): RouteHandlers {
       return reply.code(200).send(await service.listEventTypes());
     },
 
-    async eventTypeSlotsList(request, reply) {
-      const slots = await service.listSlots(request.params.eventTypeId);
+    async eventTypesRead(request, reply) {
+      const eventType = await service.getEventType(request.params.eventTypeId);
 
-      if (!slots) {
+      if (!eventType) {
         return reply.code(404).send(errors.eventTypeNotFound());
       }
 
-      return reply.code(200).send(slots);
+      return reply.code(200).send(eventType);
+    },
+
+    async eventTypeSlotsList(request, reply) {
+      const result = await service.listSlots(request.params.eventTypeId, request.query ?? {});
+
+      switch (result.status) {
+        case 'found':
+          return reply.code(200).send(result.slots);
+        case 'not_found':
+          return reply.code(404).send(errors.eventTypeNotFound());
+        case 'invalid_query':
+          return reply.code(400).send(errors.invalidSlotQuery());
+      }
     },
   };
 }
@@ -55,6 +62,7 @@ export function toOpenApiServiceHandlers(handlers: RouteHandlers) {
     AdminEventTypes_create: handlers.adminEventTypesCreate,
     Bookings_create: handlers.bookingsCreate,
     EventTypes_list: handlers.eventTypesList,
+    EventTypes_read: handlers.eventTypesRead,
     EventTypeSlots_list: handlers.eventTypeSlotsList,
   };
 }

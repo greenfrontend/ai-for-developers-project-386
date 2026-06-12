@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AdminBookingsListUpcomingData, AdminBookingsListUpcomingResponses, AdminEventTypesCreateData, AdminEventTypesCreateErrors, AdminEventTypesCreateResponses, BookingsCreateData, BookingsCreateErrors, BookingsCreateResponses, EventTypesListData, EventTypesListResponses, EventTypeSlotsListData, EventTypeSlotsListErrors, EventTypeSlotsListResponses } from './types.gen';
+import type { AdminBookingsListUpcomingData, AdminBookingsListUpcomingResponses, AdminEventTypesCreateData, AdminEventTypesCreateResponses, BookingsCreateData, BookingsCreateErrors, BookingsCreateResponses, EventTypesListData, EventTypesListResponses, EventTypeSlotsListData, EventTypeSlotsListErrors, EventTypeSlotsListResponses, EventTypesReadData, EventTypesReadErrors, EventTypesReadResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -26,7 +26,7 @@ export const adminBookingsListUpcoming = <ThrowOnError extends boolean = false>(
 /**
  * Create an event type for the predefined calendar owner.
  */
-export const adminEventTypesCreate = <ThrowOnError extends boolean = false>(options: Options<AdminEventTypesCreateData, ThrowOnError>): RequestResult<AdminEventTypesCreateResponses, AdminEventTypesCreateErrors, ThrowOnError> => (options.client ?? client).post<AdminEventTypesCreateResponses, AdminEventTypesCreateErrors, ThrowOnError>({
+export const adminEventTypesCreate = <ThrowOnError extends boolean = false>(options: Options<AdminEventTypesCreateData, ThrowOnError>): RequestResult<AdminEventTypesCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<AdminEventTypesCreateResponses, unknown, ThrowOnError>({
     url: '/admin/event-types',
     ...options,
     headers: {
@@ -36,7 +36,7 @@ export const adminEventTypesCreate = <ThrowOnError extends boolean = false>(opti
 });
 
 /**
- * Create a guest booking for a free slot in the default 14-day booking window. Returns 400 when the selected start time is outside the 14-day window or is not one of the offered slots. Returns 409 when any existing booking already starts at the selected time, even if it belongs to another event type.
+ * Create a guest booking for a free slot. Returns 400 when the selected start time is in the past or is not one of the offered slots. Returns 409 when any existing booking already starts at the selected time, even if it belongs to another event type.
  */
 export const bookingsCreate = <ThrowOnError extends boolean = false>(options: Options<BookingsCreateData, ThrowOnError>): RequestResult<BookingsCreateResponses, BookingsCreateErrors, ThrowOnError> => (options.client ?? client).post<BookingsCreateResponses, BookingsCreateErrors, ThrowOnError>({
     url: '/bookings',
@@ -53,6 +53,11 @@ export const bookingsCreate = <ThrowOnError extends boolean = false>(options: Op
 export const eventTypesList = <ThrowOnError extends boolean = false>(options?: Options<EventTypesListData, ThrowOnError>): RequestResult<EventTypesListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<EventTypesListResponses, unknown, ThrowOnError>({ url: '/event-types', ...options });
 
 /**
- * List free slots for the selected event type for the next 14 days starting today.
+ * Get an event type by its generated id.
+ */
+export const eventTypesRead = <ThrowOnError extends boolean = false>(options: Options<EventTypesReadData, ThrowOnError>): RequestResult<EventTypesReadResponses, EventTypesReadErrors, ThrowOnError> => (options.client ?? client).get<EventTypesReadResponses, EventTypesReadErrors, ThrowOnError>({ url: '/event-types/{eventTypeId}', ...options });
+
+/**
+ * List free slots for the selected event type in a calendar month. The month query uses YYYY-MM and defaults to the current month. The timeZone query uses an IANA time zone and defaults to UTC.
  */
 export const eventTypeSlotsList = <ThrowOnError extends boolean = false>(options: Options<EventTypeSlotsListData, ThrowOnError>): RequestResult<EventTypeSlotsListResponses, EventTypeSlotsListErrors, ThrowOnError> => (options.client ?? client).get<EventTypeSlotsListResponses, EventTypeSlotsListErrors, ThrowOnError>({ url: '/event-types/{eventTypeId}/slots', ...options });

@@ -5,9 +5,16 @@ using Http;
 @service(#{ title: "Booking API" })
 namespace BookingApi;
 
+@format("uuid")
+@doc("Database-generated UUID.")
+scalar Uuid extends string;
+
+@doc("Calendar month in YYYY-MM format.")
+scalar YearMonth extends string;
+
 @doc("A type of event that guests can book.")
 model EventType {
-  id: string;
+  id: Uuid;
   title: string;
   description: string;
   @doc("Duration of this event type in minutes.")
@@ -17,7 +24,6 @@ model EventType {
 
 @doc("Input used by the calendar owner to create an event type.")
 model CreateEventTypeRequest {
-  id: string;
   title: string;
   description: string;
   @doc("Duration of this event type in minutes.")
@@ -25,7 +31,7 @@ model CreateEventTypeRequest {
   durationMinutes: int32;
 }
 
-@doc("A free booking slot for a selected event type in the default 14-day booking window.")
+@doc("A free booking slot for a selected event type in a calendar month.")
 model Slot {
   startsAt: utcDateTime;
   endsAt: utcDateTime;
@@ -33,8 +39,8 @@ model Slot {
 
 @doc("A guest booking. The end time is calculated from the event type duration.")
 model Booking {
-  id: string;
-  eventTypeId: string;
+  id: Uuid;
+  eventTypeId: Uuid;
   eventTypeTitle: string;
   startsAt: utcDateTime;
   @doc("Calculated as startsAt plus the selected event type duration.")
@@ -46,8 +52,8 @@ model Booking {
 @doc("Input used by a guest to create a booking.")
 model CreateBookingRequest {
   @doc("The event type selected by the guest.")
-  eventTypeId: string;
-  @doc("Must be one of the free slot start times for the selected event type in the default 14-day booking window.")
+  eventTypeId: Uuid;
+  @doc("Must be one of the free slot start times for the selected event type.")
   startsAt: utcDateTime;
   guestName: string;
   guestEmail: string;
@@ -88,24 +94,32 @@ model ConflictError {
 interface EventTypes {
   @doc("List event types available to guests.")
   @get list(): EventType[];
+
+  @doc("Get an event type by its generated id.")
+  @route("/{eventTypeId}")
+  @get read(@path eventTypeId: Uuid): EventType | NotFoundError;
 }
 
 @route("/event-types/{eventTypeId}/slots")
 interface EventTypeSlots {
-  @doc("List free slots for the selected event type for the next 14 days starting today.")
-  @get list(@path eventTypeId: string): Slot[] | NotFoundError;
+  @doc("List free slots for the selected event type in a calendar month. The month query uses YYYY-MM and defaults to the current month. The timeZone query uses an IANA time zone and defaults to UTC.")
+  @get list(
+    @path eventTypeId: Uuid,
+    @query month?: YearMonth,
+    @query timeZone?: string,
+  ): Slot[] | BadRequestError | NotFoundError;
 }
 
 @route("/bookings")
 interface Bookings {
-  @doc("Create a guest booking for a free slot in the default 14-day booking window. Returns 400 when the selected start time is outside the 14-day window or is not one of the offered slots. Returns 409 when any existing booking already starts at the selected time, even if it belongs to another event type.")
+  @doc("Create a guest booking for a free slot. Returns 400 when the selected start time is in the past or is not one of the offered slots. Returns 409 when any existing booking already starts at the selected time, even if it belongs to another event type.")
   @post create(@body request: CreateBookingRequest): CreatedBooking | BadRequestError | NotFoundError | ConflictError;
 }
 
 @route("/admin/event-types")
 interface AdminEventTypes {
   @doc("Create an event type for the predefined calendar owner.")
-  @post create(@body request: CreateEventTypeRequest): CreatedEventType | ConflictError;
+  @post create(@body request: CreateEventTypeRequest): CreatedEventType;
 }
 
 @route("/admin/bookings")

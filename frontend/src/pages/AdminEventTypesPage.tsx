@@ -18,14 +18,12 @@ import { formatApiError } from '../api/errors';
 import { adminEventTypesCreate } from '../api/generated/sdk.gen';
 
 type EventTypeForm = {
-  id: string;
   title: string;
   description: string;
   durationMinutes: number | '';
 };
 
 const initialForm: EventTypeForm = {
-  id: '',
   title: '',
   description: '',
   durationMinutes: 30,
@@ -49,7 +47,6 @@ export function AdminEventTypesPage() {
 
     const result = await adminEventTypesCreate({
       body: {
-        id: form.id.trim(),
         title: form.title.trim(),
         description: form.description.trim(),
         durationMinutes: form.durationMinutes,
@@ -86,15 +83,6 @@ export function AdminEventTypesPage() {
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
             <Group grow align="flex-start">
-              <TextInput
-                label="ID"
-                value={form.id}
-                onChange={(event) => {
-                  const { value } = event.currentTarget;
-                  setForm((current) => ({ ...current, id: value }));
-                }}
-                required
-              />
               <NumberInput
                 label="Duration, minutes"
                 min={1}

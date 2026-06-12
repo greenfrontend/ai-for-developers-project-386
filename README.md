@@ -49,6 +49,10 @@ docker compose up -d postgres
 npm run backend:db:migrate
 ```
 
+The migration runner applies all SQL files in `backend/drizzle` in filename
+order. Existing databases with text event type ids are migrated to generated
+UUID ids while preserving existing bookings.
+
 Run the backend API:
 
 ```sh

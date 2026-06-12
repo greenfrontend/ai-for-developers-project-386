@@ -14,13 +14,14 @@ Covered by `e2e/booking.spec.ts`.
 3. Open the guest booking page.
 4. Find the newly created event type in the event type list.
 5. Open its available slots.
-6. Select the first available slot.
-7. Fill in guest name and email.
-8. Create the booking.
-9. Verify that the success notification appears.
-10. Verify that the booked slot is no longer offered.
-11. Open the admin bookings page.
-12. Verify that the booking appears with the expected event title, guest name,
+6. Use the month calendar to select the first available day.
+7. Select the first available time on that day.
+8. Fill in guest name and email.
+9. Create the booking.
+10. Verify that the success notification appears.
+11. Verify that the booked slot is no longer offered.
+12. Open the admin bookings page.
+13. Verify that the booking appears with the expected event title, guest name,
     and guest email.
 
 ## Additional Scenarios To Keep Covered

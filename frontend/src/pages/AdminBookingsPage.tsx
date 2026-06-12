@@ -1,5 +1,4 @@
 import {
-  Badge,
   Button,
   Group,
   Paper,
@@ -75,17 +74,14 @@ export function AdminBookingsPage() {
           {bookings.map((booking) => (
             <Paper key={booking.id} withBorder p="lg" radius="sm">
               <Stack gap="sm">
-                <Group justify="space-between" align="flex-start">
-                  <Stack gap={2}>
-                    <Title order={2} size="h3">
-                      {booking.eventTypeTitle}
-                    </Title>
-                    <Text c="dimmed" size="sm">
-                      {booking.guestName} · {booking.guestEmail}
-                    </Text>
-                  </Stack>
-                  <Badge variant="light">{booking.eventTypeId}</Badge>
-                </Group>
+                <Stack gap={2}>
+                  <Title order={2} size="h3">
+                    {booking.eventTypeTitle}
+                  </Title>
+                  <Text c="dimmed" size="sm">
+                    {booking.guestName} · {booking.guestEmail}
+                  </Text>
+                </Stack>
                 <Text size="sm">
                   {formatDateTime(booking.startsAt)} - {formatDateTime(booking.endsAt)}
                 </Text>

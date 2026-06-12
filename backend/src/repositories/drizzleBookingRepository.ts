@@ -1,6 +1,6 @@
 import { and, asc, eq, gte, lt } from 'drizzle-orm';
 
-import type { Booking, EventType } from '../api/generated/types.gen.js';
+import type { Booking, CreateEventTypeRequest, EventType } from '../api/generated/types.gen.js';
 import { bookings, eventTypes } from '../db/schema.js';
 import type { Database } from '../db/client.js';
 import type { BookingDraft, BookingRepository } from '../domain.js';
@@ -62,23 +62,17 @@ export class DrizzleBookingRepository implements BookingRepository {
     }
   }
 
-  async createEventType(eventType: EventType): Promise<'created' | 'conflict'> {
-    try {
-      await this.db.insert(eventTypes).values({
-        id: eventType.id,
+  async createEventType(eventType: CreateEventTypeRequest): Promise<EventType> {
+    const [createdEventType] = await this.db
+      .insert(eventTypes)
+      .values({
         title: eventType.title,
         description: eventType.description,
         durationMinutes: eventType.durationMinutes,
-      });
+      })
+      .returning();
 
-      return 'created';
-    } catch (error) {
-      if (isUniqueViolation(error)) {
-        return 'conflict';
-      }
-
-      throw error;
-    }
+    return toEventType(createdEventType);
   }
 
   async findEventType(eventTypeId: string): Promise<EventType | undefined> {

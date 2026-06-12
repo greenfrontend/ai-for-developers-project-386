@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test';
 
 test('guest can book an available slot end to end', async ({ page }) => {
   const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const eventTypeId = `e2e-intro-${suffix}`;
   const eventTitle = `E2E Intro ${suffix}`;
   const description = `Bookable event type created by Playwright ${suffix}`;
   const guestName = `Playwright Guest ${suffix}`;
@@ -11,7 +10,6 @@ test('guest can book an available slot end to end', async ({ page }) => {
   await page.goto('/admin/event-types');
   await expect(page.getByRole('heading', { name: 'Create event type' })).toBeVisible();
 
-  await page.getByLabel('ID').fill(eventTypeId);
   await page.getByLabel('Duration, minutes').fill('60');
   await page.getByLabel('Title').fill(eventTitle);
   await page.getByLabel('Description').fill(description);
@@ -37,14 +35,15 @@ test('guest can book an available slot end to end', async ({ page }) => {
   await expect(eventCard).toBeVisible();
   await eventCard.getByRole('link', { name: 'View slots' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Available slots' })).toBeVisible();
-  await expect(page.getByText(`Event type: ${eventTypeId}`)).toBeVisible();
+  await expect(page.getByRole('heading', { name: eventTitle })).toBeVisible();
+  await expect(page.getByText(description)).toBeVisible();
+  await expect(page.getByText(/\d+ slots/).first()).toBeVisible();
 
-  const firstSlot = page.locator('input[type="radio"]').first();
+  const firstSlot = page.locator('[data-slot-starts-at]').first();
   await expect(firstSlot).toBeVisible();
-  const startsAt = await firstSlot.getAttribute('value');
+  const startsAt = await firstSlot.getAttribute('data-slot-starts-at');
   expect(startsAt).toBeTruthy();
-  await firstSlot.check();
+  await firstSlot.click();
 
   await page.getByLabel('Guest name').fill(guestName);
   await page.getByLabel('Guest email').fill(guestEmail);
@@ -60,7 +59,7 @@ test('guest can book an available slot end to end', async ({ page }) => {
   ]);
 
   await expect(page.getByText('Booking created').first()).toBeVisible();
-  await expect(page.locator(`input[type="radio"][value="${startsAt}"]`)).toHaveCount(0);
+  await expect(page.locator(`[data-slot-starts-at="${startsAt}"]`)).toHaveCount(0);
 
   await page.goto('/admin/bookings');
   await expect(page.getByRole('heading', { name: 'Upcoming bookings' })).toBeVisible();

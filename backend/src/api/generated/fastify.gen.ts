@@ -2,7 +2,7 @@
 
 import type { RouteHandler } from 'fastify';
 
-import type { AdminBookingsListUpcomingResponses, AdminEventTypesCreateData, AdminEventTypesCreateErrors, AdminEventTypesCreateResponses, BookingsCreateData, BookingsCreateErrors, BookingsCreateResponses, EventTypesListResponses, EventTypeSlotsListData, EventTypeSlotsListErrors, EventTypeSlotsListResponses } from './types.gen';
+import type { AdminBookingsListUpcomingResponses, AdminEventTypesCreateData, AdminEventTypesCreateResponses, BookingsCreateData, BookingsCreateErrors, BookingsCreateResponses, EventTypesListResponses, EventTypeSlotsListData, EventTypeSlotsListErrors, EventTypeSlotsListResponses, EventTypesReadData, EventTypesReadErrors, EventTypesReadResponses } from './types.gen';
 
 export type RouteHandlers = {
     adminBookingsListUpcoming: RouteHandler<{
@@ -10,7 +10,7 @@ export type RouteHandlers = {
     }>;
     adminEventTypesCreate: RouteHandler<{
         Body: AdminEventTypesCreateData['body'];
-        Reply: AdminEventTypesCreateErrors & AdminEventTypesCreateResponses;
+        Reply: AdminEventTypesCreateResponses;
     }>;
     bookingsCreate: RouteHandler<{
         Body: BookingsCreateData['body'];
@@ -19,8 +19,13 @@ export type RouteHandlers = {
     eventTypesList: RouteHandler<{
         Reply: EventTypesListResponses;
     }>;
+    eventTypesRead: RouteHandler<{
+        Params: EventTypesReadData['path'];
+        Reply: EventTypesReadErrors & EventTypesReadResponses;
+    }>;
     eventTypeSlotsList: RouteHandler<{
         Params: EventTypeSlotsListData['path'];
+        Querystring?: EventTypeSlotsListData['query'];
         Reply: EventTypeSlotsListErrors & EventTypeSlotsListResponses;
     }>;
 };

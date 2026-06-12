@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 
-import type { Booking, CreateBookingRequest, CreateEventTypeRequest, EventType, Slot } from '../api/generated/types.gen.js';
-import type { BookingRepository, CreateBookingResult, CreateEventTypeResult } from '../domain.js';
+import type { Booking, CreateBookingRequest, CreateEventTypeRequest, EventType } from '../api/generated/types.gen.js';
+import type { BookingRepository, CreateBookingResult, ListSlotsResult } from '../domain.js';
 import { addMinutes, toIsoString } from './time.js';
-import { generateSlots, getSlotWindow, isOfferedSlot, normalizeSlotStart } from './slots.js';
+import { generateSlots, getSlotWindow, isValidOfferedSlotStart, normalizeSlotStart } from './slots.js';
 
 export type BookingService = ReturnType<typeof createBookingService>;
 
@@ -31,21 +31,7 @@ export function createBookingService(params: {
         return { status: 'conflict' };
       }
 
-      const currentTime = now();
-      const { startInclusive, endExclusive } = getSlotWindow(currentTime);
-      const windowBookings = await repository.listBookingsBetween(
-        toIsoString(startInclusive),
-        toIsoString(endExclusive),
-      );
-
-      if (
-        !isOfferedSlot({
-          bookings: windowBookings,
-          eventType,
-          now: currentTime,
-          startsAt: normalizedStartsAt,
-        })
-      ) {
+      if (!isValidOfferedSlotStart({ eventType, now: now(), startsAt: normalizedStartsAt })) {
         return { status: 'invalid_slot' };
       }
 
@@ -79,43 +65,57 @@ export function createBookingService(params: {
       };
     },
 
-    async createEventType(request: CreateEventTypeRequest): Promise<CreateEventTypeResult> {
-      const eventType: EventType = {
-        id: request.id,
+    async createEventType(request: CreateEventTypeRequest): Promise<EventType> {
+      return repository.createEventType({
         title: request.title,
         description: request.description,
         durationMinutes: request.durationMinutes,
-      };
-      const result = await repository.createEventType(eventType);
-
-      return result === 'conflict'
-        ? { status: 'conflict' }
-        : { status: 'created', eventType };
+      });
     },
 
     async listEventTypes(): Promise<EventType[]> {
       return repository.listEventTypes();
     },
 
-    async listSlots(eventTypeId: string): Promise<Slot[] | undefined> {
+    async getEventType(eventTypeId: string): Promise<EventType | undefined> {
+      return repository.findEventType(eventTypeId);
+    },
+
+    async listSlots(eventTypeId: string, query: { month?: string; timeZone?: string } = {}): Promise<ListSlotsResult> {
       const eventType = await repository.findEventType(eventTypeId);
 
       if (!eventType) {
-        return undefined;
+        return { status: 'not_found' };
       }
 
       const currentTime = now();
-      const { startInclusive, endExclusive } = getSlotWindow(currentTime);
+      const window = getSlotWindow({
+        month: query.month,
+        now: currentTime,
+        timeZone: query.timeZone,
+      });
+
+      if (!window) {
+        return { status: 'invalid_query' };
+      }
+
       const bookings = await repository.listBookingsBetween(
-        toIsoString(startInclusive),
-        toIsoString(endExclusive),
+        toIsoString(window.startInclusive),
+        toIsoString(window.endExclusive),
       );
 
-      return generateSlots({
-        bookedStartsAt: bookings.map((booking) => booking.startsAt),
-        eventType,
-        now: currentTime,
-      });
+      return {
+        status: 'found',
+        slots: generateSlots({
+          bookedStartsAt: bookings.map((booking) => booking.startsAt),
+          endExclusive: window.endExclusive,
+          eventType,
+          month: window.month,
+          now: currentTime,
+          startInclusive: window.startInclusive,
+          timeZone: window.timeZone,
+        }),
+      };
     },
 
     async listUpcomingBookings(): Promise<Booking[]> {
