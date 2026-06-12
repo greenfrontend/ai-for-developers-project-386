@@ -1,17 +1,20 @@
 import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
 import { createDatabase } from './db/client.js';
+import { InMemoryBookingRepository } from './repositories/inMemoryBookingRepository.js';
 import { DrizzleBookingRepository } from './repositories/drizzleBookingRepository.js';
 
 const config = loadConfig();
-const { client, db } = createDatabase(config.databaseUrl);
+const database = config.databaseUrl ? createDatabase(config.databaseUrl) : undefined;
 const app = await buildApp({
   enableResponseValidation: config.nodeEnv !== 'production',
-  repository: new DrizzleBookingRepository(db),
+  repository: database
+    ? new DrizzleBookingRepository(database.db)
+    : new InMemoryBookingRepository(),
 });
 
 app.addHook('onClose', async () => {
-  await client.end();
+  await database?.client.end();
 });
 
 try {
